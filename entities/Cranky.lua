@@ -21,15 +21,15 @@ function Cranky.newCostume()
 			images = {}
 		}
 	}
-	
+
 end
 function Cranky.updateCostume(data)
 
-	
+
 	if not data.metadata.version then
 		data.metadata.version = -1
 	end
-	
+
 	local function tableize(d)
 		if not d then return d end
 		if d.layers then
@@ -38,14 +38,14 @@ function Cranky.updateCostume(data)
 			return {helpers.copy(d)}
 		end
 	end
-	
+
 	if data.metadata.version < 0 then
 		data.metadata.version = 0
 		data.hat = tableize(data.hat)
 		data.overlay = tableize(data.overlay)
 		data.tail = tableize(data.tail)
 	end
-	
+
 	if data.metadata.version < 1 then
 		data.metadata.version = 1
 		if data.face then
@@ -53,9 +53,9 @@ function Cranky.updateCostume(data)
 			data.face.overOverCranky = nil
 		end
 	end
-	
+
 	return data
-	
+
 end
 
 local costumePaths = {}
@@ -79,7 +79,7 @@ end
 
 function Cranky.loadCostumeImages(data,path,errorDescription)
 	local success = true
-	
+
 	local files = {}
 	if data.files.images then
 		for i,v in ipairs(data.files.images) do
@@ -97,9 +97,9 @@ function Cranky.loadCostumeImages(data,path,errorDescription)
 	else
 		data.preview = sprites.costumes.previewbase
 	end
-	
+
 	data.loadedFiles = files
-	
+
 	return success,data,errorDescription
 end
 
@@ -108,7 +108,7 @@ findFiles('costumes/')
 
 for costumeI, costumePath in ipairs(costumePaths) do
 	local name, path = costumePath.name, costumePath.path
-	
+
 	--print('loading costume '.. name)
 	local data = dpf.loadJson(path..'costume.json')
 	local files = {}
@@ -120,11 +120,11 @@ for costumeI, costumePath in ipairs(costumePaths) do
 	if love.filesystem.exists(path..'preview.png') then
 		data.preview = love.graphics.newImage(path..'preview.png')
 	end
-	
+
 	data.loadedFiles = files
 	Costumes[name] = Cranky.updateCostume(data)
-	
-	
+
+
 end
 
 function Cranky:reloadCustomCostumes()
@@ -135,11 +135,11 @@ function Cranky:reloadCustomCostumes()
 		love.filesystem.createDirectory('Custom Costumes')
 	end
 	findFiles('Custom Costumes/')
-	
+
 	if project.mountedWorkshop then
 		findFiles('Workshop/',true)
 	end
-	
+
 	for costumeI, costumePath in ipairs(costumePaths) do
 		local name, path = costumePath.name, costumePath.path
 		table.insert(customCostumeList,name)
@@ -155,7 +155,7 @@ function Cranky:reloadCustomCostumes()
 			errorDescription = loc.get('costumeErrorJson')
 			errorPreventLoad = true
 		end
-		
+
 		if success then
 			data.metadata = data.metadata or {name = 'MISSING NAME', desc = 'MISSING DESC'}
 			data.metadata.name = data.metadata.name or 'MISSING NAME'
@@ -169,7 +169,7 @@ function Cranky:reloadCustomCostumes()
 						desc = errorDescription,
 					},
 					errorPreventLoad = errorPreventLoad,
-					
+
 					preview = sprites.costumes.errorpreview
 				}
 			else
@@ -184,7 +184,7 @@ function Cranky:reloadCustomCostumes()
 		Costumes[name].isWorkshop = isWorkshop[name]
 		Costumes[name].isCustom = true
 		Costumes[name].path = path
-		
+
 	end
 	Costumes.customCostumeList = customCostumeList
 end
@@ -193,14 +193,14 @@ end
 
 
 
-Cranky.reloadCustomCostumes()
+Cranky:reloadCustomCostumes()
 
 function Cranky:initialize(params)
 
   self.layer = 0
   self.uCranky = 0
   self.batchOutline = false --there's only ever one cranky, and we need to be able to dither.
-	
+
 	--[[
   self.spr = {
     idle = sprites.Cranky.idle,
@@ -211,9 +211,9 @@ function Cranky:initialize(params)
 	self.spr[':3'] = sprites.Cranky.colonthree
 	self.spr['><'] = sprites.Cranky.eyesclosed
 	]]--
-	
+
 	self.canvas = love.graphics.newCanvas(project.res.x,project.res.y)
-	
+
 	self.spr = {}
 	self.faceIndex = {
 		idle = 0,
@@ -223,8 +223,8 @@ function Cranky:initialize(params)
 	}
 	self.faceIndex[':3'] = 4
 	self.faceIndex['><'] = 5
-	
-	
+
+
   self.x=self.x or 0
   self.y=self.y or 0
   self.time=0
@@ -240,7 +240,7 @@ function Cranky:initialize(params)
 	self.paddleDistance = 31
 	self.lightRad = 64
 	self.disableCostume = false
-  
+
   -- new paddle handling.
   -- why do i do this
 
@@ -265,27 +265,27 @@ function Cranky:initialize(params)
 	self.snapX = 0
 	self.snapY = 0
 	self.angleHistory = {}
-	
+
 	--feedback stuff
-	
+
 	if self.feedbackTween then self.feedbackTween:stop() end
 	self.feedbackTween = nil
 	self.feedbackAmplitude = 2.5
 	self.feedbackDuration = 4
 	self.feedbackEase = 'outQuad'
-	
+
 	self.feedbackOffset = 0
-	
+
 	--self.arcTooBigTimer = 0
 	--self.arcTooSmallTimer = 0
 	self.transitionTween = nil
 
 	self.unpauseCooldown = 0
-    
+
 	local costumeUnlocks = UnlockManager.checkCostumeUnlocks(Costumes)
 	local unlockedCostumeList = {}
 	local excludeFromRandomCostumes = {"_customCostumes", "_defaultCostumes", "_createCostume", "random", "none", "invisible"}
-	
+
 	local function containedInExcludeList(name)
 		for _,v in ipairs(excludeFromRandomCostumes) do
 			if name == v then
@@ -294,13 +294,13 @@ function Cranky:initialize(params)
 		end
 		return false
 	end
-	
+
 	for i,v in pairs(costumeUnlocks) do
 		if (v == true) and (not containedInExcludeList(i)) then
 			table.insert(unlockedCostumeList, i)
 		end
 	end
-	
+
 	self.randomCostume = unlockedCostumeList[math.random(#unlockedCostumeList)]
 
   Entity.initialize(self,params)
@@ -312,12 +312,12 @@ end
 
 function Cranky:doPaddleFeedback(inverse)
 	if self.feedbackTween then self.feedbackTween:stop() end
-	
+
 	self.feedbackOffset = self.feedbackAmplitude * -1
 	if inverse then
 		self.feedbackOffset = self.feedbackAmplitude
 	end
-	
+
 	self.feedbackTween = flux.to(self,self.feedbackDuration,{feedbackOffset = 0}):ease(self.feedbackEase)
 end
 
@@ -357,7 +357,7 @@ end
 
 function Cranky:update(dt)
     prof.push("Cranky update")
-    
+
     -- Keep animation timers
     self.angle = self.angle % 360
     self.emoTimer = self.emoTimer - dt
@@ -391,7 +391,7 @@ function Cranky:getCostume()
 	--Eventually if we want to do something like having multiple costumes at once, we can handle
 	--that in this function.
 	--for now we can just return the single costume we are using. -DPS
-	if self.forceCostume then 
+	if self.forceCostume then
 		if type(self.forceCostume) == 'string' then
 			return Costumes[self.forceCostume]
 		else
@@ -411,7 +411,7 @@ function Cranky:getCostumeFile(costume,image)
 end
 
 function Cranky:drawHat(costume,hat)
-	
+
 	if not hat then return end
 
 	love.graphics.push()
@@ -420,7 +420,7 @@ function Cranky:drawHat(costume,hat)
 		color()
 		local rotationInfluence = hat.rotationInfluence or 15
 		local r = rotationInfluence * math.cos((self.angle - 90) * math.pi / 180) * -1
-		
+
 		local radius = math.abs(self.bodyRadius+self.extend/2+(math.sin(self.time*0.03))/2)
 		--you may ask yourself, why the math.abs?
 		--because some FREAKS (positive) figured out you can get a cool octagonal cranky by giving him a negative body radius
@@ -442,22 +442,22 @@ function Cranky:drawHat(costume,hat)
 				hat.xOffset, yOffset
 			)
 		wbRecolor()
-	
+
 	love.graphics.setStencilTest()
 	love.graphics.pop()
-	
+
 end
 
 function Cranky:drawOverlay(costume,overlay)
-	
+
 	if not overlay then return end
-	
+
 	love.graphics.push()
 	love.graphics.setStencilTest('notequal',3)
 		--todo: make a getFinalRadius function or smth
 		color()
 		--local r = -15 * math.cos((self.angle - 90) * math.pi / 180)
-		
+
 		local bobMultiplier = overlay.bobMultiplier or 1
 		local scaleInsteadOfBob = overlay.scaleInsteadOfBob or false
 		local radiusMultiplier = overlay.radiusMultiplier or 1
@@ -468,23 +468,23 @@ function Cranky:drawOverlay(costume,overlay)
 			baseRadius = 20
 		end
 		local radius = math.abs(baseRadius+self.extend/2+(math.sin(self.time*0.03)*bobMultiplier)/2) * radiusMultiplier
-		
+
 		love.graphics.translate(self.x,self.y)
 		local bodyPulseScale = (1 + self.bodyPulse) *self.drawScale
 		love.graphics.scale(bodyPulseScale)
-			
+
 		local rotation = self.time*0.00325*rotationSpeed
-		
+
 		local overlayImage = self:getCostumeFile(costume,overlay.image)
-		
+
 		local pivotMultiplier = overlay.pivotMultiplier or 1
 		local pivotOffset = overlay.pivotOffset or 0
-		
+
 		local mode = overlay.mode or 'default'
-		
+
 		wbRecolor(self.fillColor,self.outlineColor)
 		if mode == 'centerScaled' then
-			
+
 			local pivot = helpers.rotate(radius*pivotMultiplier+pivotOffset, pivotAngle,0,0)
 			love.graphics.draw(
 				overlayImage, pivot[1], pivot[2],
@@ -496,7 +496,7 @@ function Cranky:drawOverlay(costume,overlay)
 				local CrankyRadiusMultiplier = (self.bodyRadius+self.extend/2)/self.bodyRadius
 				local r1 = math.abs(self.bodyRadius) * radiusMultiplier
 				local r2 = (math.sin(self.time*0.03)*bobMultiplier)/20
-				
+
 				local pivot = helpers.rotate(r1*pivotMultiplier+pivotOffset, pivotAngle,0,0)
 				love.graphics.draw(
 					overlayImage, pivot[1], pivot[2],
@@ -514,19 +514,19 @@ function Cranky:drawOverlay(costume,overlay)
 		end
 		wbRecolor()
 
-	
+
 	love.graphics.setStencilTest()
 	love.graphics.pop()
-	
+
 end
 
 function Cranky:drawTail(costume,tail)
-	
+
 	if not tail then return end
-	
+
 	if tail.bunny then
 		love.graphics.push()
-		
+
 		love.graphics.translate(self.x,self.y)
 		local bodyPulseScale = (1 + self.bodyPulse) *self.drawScale
 		love.graphics.scale(bodyPulseScale)
@@ -537,34 +537,34 @@ function Cranky:drawTail(costume,tail)
 		love.graphics.circle("fill",x,y,8)
 		color(self.outlineColor)
 		love.graphics.circle("line",x,y,8)
-		
+
 		love.graphics.pop()
 	end
-	
-	
+
+
 	if tail.image then
-		
+
 		love.graphics.push()
 		love.graphics.translate(self.x,self.y)
 		local bodyPulseScale = (1 + self.bodyPulse) *self.drawScale
 		love.graphics.scale(bodyPulseScale)
 		local r = -15 * (tail.moveMult or 1) * math.cos((self.angle - 90) * math.pi / 180)
 		local scaleFlip = (not tail.lockScale) and -math.cos((self.angle - 90) * math.pi / 180) or 1
-		local x = r 
-		local y =10 
+		local x = r
+		local y =10
 		color(self.fillColor)
 
 		local tailImage = self:getCostumeFile(costume,tail.image)
-		
+
 		wbRecolor(self.fillColor,self.outlineColor)
 			love.graphics.draw(tailImage, x + (tail.xOffset or 0), y + (tail.yOffset or 0), 0, scaleFlip, 1, 0, tailImage:getHeight())
 		wbRecolor()
 		love.graphics.pop()
-		
+
 	end
-	
-	
-	
+
+
+
 end
 
 function Cranky:drawFace(costume)
@@ -586,11 +586,11 @@ function Cranky:drawFace(costume)
 	end
 	if self.forceSprite ~= 'none' then
 		local useFaceStencil = self.useFaceStencil or (costume.face and costume.face.useFaceStencil)
-		
+
 		if useFaceStencil then
 			love.graphics.setStencilTest('equal',1)
 		end
-		
+
 		-- determine x and y offsets of the eyes
 		local eyex, eyey
 		if costume.body and costume.body.bodyInvisible then
@@ -599,15 +599,15 @@ function Cranky:drawFace(costume)
 		else
 			eyex, eyey = self:doEyeControls(costume)
 		end
-		
+
 		local emotion = self.cEmotion
-		
+
 		if self.forceSprite ~= '' then
 			emotion = self.forceSprite
 		end
-	
+
 		local faceSpr = self.spr[emotion]
-		
+
 		if not faceSpr then --draw face sprite from costume (or default)
 			local faceAnimation = animations.crankyFace
 			local forceFrame = nil
@@ -621,9 +621,9 @@ function Cranky:drawFace(costume)
 						forceFrame = 0
 					end
 				end
-				
+
 				if costume.face.lawrence then
-					
+
 					if self.faceColor == -1 then
 						color(1)
 					else
@@ -633,12 +633,12 @@ function Cranky:drawFace(costume)
 					love.graphics.setLineWidth(1)
 					love.graphics.translate( eyex/2, eyey/2)
 					love.graphics.rotate(self.time*0.04)
-					
-					
+
+
 					love.graphics.ellipse('line',0,0,math.max(math.abs(math.sin(self.time*0.03)*12),1),12)
 					love.graphics.rotate(self.time*-0.06)
 					love.graphics.ellipse('line',0,0,math.max(math.abs(math.sin(self.time*0.02+1)*12),1),12)
-					
+
 				end
 			end
 			if faceImage then
@@ -658,7 +658,7 @@ function Cranky:drawFace(costume)
 	if self.faceColor ~= -1 then
 		love.graphics.setShader()
 	end
-	
+
 end
 
 
@@ -693,18 +693,18 @@ function Cranky:drawBody(costume, bodyShape, offset, fillColor, outlineColor, sk
 	local finalY = offset-- +self.y / bodyPulseScale
 
 	local radius = self.bodyRadius+self.extend/2+(math.sin(self.time*0.03))/2
-	
+
 	local bodySegments = nil
 	local paddleSegments = nil
-    
+
 	if costume.body then
 		bodySegments = costume.body.bodySegments
 		paddleSegments = costume.body.paddleSegments
 	end
-	
+
 	fillColor = fillColor or self.fillColor
 	outlineColor = outlineColor or self.outlineColor
-	
+
 
 
 
@@ -719,7 +719,7 @@ function Cranky:drawBody(costume, bodyShape, offset, fillColor, outlineColor, sk
 		color(outlineColor)
 		love.graphics.circle("line",finalX,finalY,radius,bodySegments)
 	end
-	
+
 	if bodyShape == "square" then
 		love.graphics.setColorMask()
 		if not skipBody then
@@ -739,7 +739,7 @@ function Cranky:drawBody(costume, bodyShape, offset, fillColor, outlineColor, sk
 			table.insert(vertices, finalX+0.8*radius*math.cos(2*math.pi*(2*i+1)/vertexCount+rotation))
 			table.insert(vertices, finalY+0.8*radius*math.sin(2*math.pi*(2*i+1)/vertexCount+rotation))
 		end
-		
+
 		if not skipBody then
 			local triangles = love.math.triangulate(vertices)
 			color(fillColor)
@@ -747,7 +747,7 @@ function Cranky:drawBody(costume, bodyShape, offset, fillColor, outlineColor, sk
 				love.graphics.polygon("fill", triangles[i])
 			end
 		end
-		
+
 		color(outlineColor)
 		love.graphics.polygon("line", vertices)
 	elseif bodyShape == "triangle" then
@@ -844,7 +844,7 @@ function Cranky:drawBody(costume, bodyShape, offset, fillColor, outlineColor, sk
 			x(10,1.1), y(10,1.0))
 	elseif bodyShape == "novena" then
 		drawCircle()
-		
+
 		local function drawRhombus(mode, offset, radius)
 			local x = finalX + offset
 			local y = finalY + offset
@@ -854,17 +854,17 @@ function Cranky:drawBody(costume, bodyShape, offset, fillColor, outlineColor, sk
 			x + (radius*math.cos(2*math.pi*1/2)), y - (radius*math.sin(2*math.pi*1/2)),
 			x + (radius*math.cos(2*math.pi*1/3)), y - (radius*math.sin(2*math.pi*1/3)))
 		end
-		
+
 		local offset = 0
 		local rhombusRadius = 0.886 * radius
-		
+
 		color(outlineColor)
 		drawRhombus("fill", offset, rhombusRadius)
-		
+
 	else
 		drawCircle()
 	end
-	
+
 	end,'replace',1,true)
 end
 
@@ -879,16 +879,16 @@ function Cranky:drawToCanvas(costume, bodyShape, offset)
 	end
 
 	love.graphics.setLineWidth(self.lineWidth/self.drawScale)
-	
+
 	local paddleFeedbackPosition = helpers.rotate(self.feedbackOffset, self.angle,self.x,self.y)
-	
-	
+
+
 	self:drawAllTails(costume)
-	
+
 	self:drawAllHats(costume,true)
-	
+
 	self:drawAllOverlays(costume,true)
-	
+
 
 	if bodyShape ~= "invisible" then
 		for i = 1, #self.paddles, 1 do
@@ -899,7 +899,7 @@ function Cranky:drawToCanvas(costume, bodyShape, offset)
 				love.graphics.translate(paddleFeedbackPosition[1]+offset*self.drawScale,paddleFeedbackPosition[2]+offset*self.drawScale)
 				love.graphics.rotate((self.angle - p.baseAngle - 90) * math.pi / 180)
 				love.graphics.scale(self.drawScale)
-				
+
 				--HANDLE
 				--fill in handle
 				color(self.fillColor)
@@ -955,7 +955,7 @@ function Cranky:drawToCanvas(costume, bodyShape, offset)
 						for i,v in ipairs(love.math.triangulate(paddlePoly)) do
 								love.graphics.polygon('fill',v)
 						end
-						
+
 						color(self.outlineColor)
 						love.graphics.polygon('line',paddlePoly)
 					end)
@@ -964,13 +964,13 @@ function Cranky:drawToCanvas(costume, bodyShape, offset)
 			end
 		end
 	end
-	
+
 
 	local bodyPulseScale = (1 + self.bodyPulse) *self.drawScale
-	
+
 	love.graphics.push()
 		-- scaling circle and face for hurt animation
-		
+
 		love.graphics.translate(self.x,self.y)
 		love.graphics.scale(bodyPulseScale)
 		love.graphics.setLineWidth(self.lineWidth/bodyPulseScale)
@@ -981,11 +981,11 @@ function Cranky:drawToCanvas(costume, bodyShape, offset)
 		if not faceOnTop then
 			self:drawFace(costume)
 		end
-		
+
 		if redrawOutline then
 			self:drawBody(costume,bodyShape,offset,nil,nil,true)
 		end
-		
+
 	love.graphics.pop()
 	self:drawAllHats(costume,false)
 	self:drawAllOverlays(costume,false)
@@ -999,17 +999,17 @@ function Cranky:drawToCanvas(costume, bodyShape, offset)
 end
 
 function Cranky:draw()
-	
+
 	local oldCanvas = love.graphics.getCanvas()
 	love.graphics.setCanvas({self.canvas,stencil=true})
 	love.graphics.clear()
-    
+
 	local costume = self:getCostume()
 	local bodyShape = "circle"
 	local bodySegments = nil
 	local paddleSegments = nil
-	
-	
+
+
 	--to do: tear this all out, holy SHIT
 	if costume.body then
 		bodySegments = costume.body.bodySegments
@@ -1032,20 +1032,20 @@ function Cranky:draw()
 			bodyShape = "invisible"
 		end
 	end
-	
+
 	if bodyShape == "2p5d" then
 		self:drawToCanvas(costume, "circle", 3)
 		self:drawToCanvas(costume, "circle", 0)
 	else
 		self:drawToCanvas(costume, bodyShape, 0)
 	end
-	
+
 	love.graphics.setCanvas({oldCanvas,stencil = true})
 	local doDither = nil
 	if cs.cBeat and cs.pauseBeat and cs.pauseBeat > cs.cBeat then
 		doDither = 1
 	end
-	
+
 	outline(function()
 		color()
 		love.graphics.draw(self.canvas)
