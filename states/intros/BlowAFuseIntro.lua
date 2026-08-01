@@ -57,7 +57,7 @@ st:setUpdate(function(self, dt)
     self.timer = self.timer + dt
 
     if maininput:down("tap1") or maininput:down("accept") or maininput:down("mouse1") then
-        self.goToLevel = true
+        self.skiptimer = self.skiptimer + dt
     end
 
     if self.skiptimer > 1 or self.goToLevel then

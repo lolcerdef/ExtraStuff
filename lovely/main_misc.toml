@@ -51,7 +51,7 @@ if project.showFPS then
 position = "before"
 payload = '''
 if jumpscareActive and jumpscareInst then
-	love.graphics.setColor(1,1,1,extrasavedata.foxyJumpscareAlpha or 1)
+	love.graphics.setColor(1,1,1,extrasavedata.foxyJumpscareAlpha)
 	jumpscareInst:draw(0, 0, 0, 1.9 * shuv.scale, 1.9 * shuv.scale)
 -- inst:draw(x,y,r,sx,sy,ox,oy,kx,ky)
 end

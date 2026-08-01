@@ -37,13 +37,17 @@ end
 if self.editMenu then
 
 	if self.editPosLogoWindow then
-		extrasavedata.moreMMenuCustomization.logoPosOff[1], extrasavedata.moreMMenuCustomization.logoPosOff[2], _, self.editPosLogo = imguiextra.PositionEditor("logo",extrasavedata.moreMMenuCustomization.logoPosOff[1], extrasavedata.moreMMenuCustomization.logoPosOff[2], nil, self.editPosLogo, 300, 100)
+		local pos = extrasavedata.moreMMenuCustomization.logoPosOff
+		pos[1], pos[2], _, self.editPosLogo = imguiextra.PositionEditor("logo", pos[1], pos[2], nil, self.editPosLogo, 300, 100)
 	end
 	if self.editPosESSplashWindow then
-		extrasavedata.splashTextPos[1], extrasavedata.splashTextPos[2], extrasavedata.splashTextPos[3], self.editPosESSplash = imguiextra.PositionEditor("essplash",extrasavedata.splashTextPos[1], extrasavedata.splashTextPos[2], extrasavedata.splashTextPos[3], self.editPosESSplash, extrasavedata.moreMMenuCustomization.logoPosOff[1] + 300+sprites.title.logo:getWidth()/3, extrasavedata.moreMMenuCustomization.logoPosOff[2] + 80 + sprites.title.logo:getHeight()/2)
+		local pos = extrasavedata.splashTextPos
+		local origin = extrasavedata.moreMMenuCustomization.logoPosOff
+		pos[1], pos[2], pos[3], self.editPosESSplash = imguiextra.PositionEditor("essplash", pos[1], pos[2], pos[3], self.editPosESSplash, origin[1] + 300 + sprites.title.logo:getWidth()/3, origin[2] + 80 + sprites.title.logo:getHeight()/2)
 	end
 	if self.editPosSplashWindow then
-		extrasavedata.apflSplashTextPos[1], extrasavedata.apflSplashTextPos[2], extrasavedata.apflSplashTextPos[3], self.editPosSplash = imguiextra.PositionEditor("splash",extrasavedata.apflSplashTextPos[1], extrasavedata.apflSplashTextPos[2], extrasavedata.apflSplashTextPos[3], self.editPosSplash, 300, 135)
+		local pos = extrasavedata.apflSplashTextPos
+		pos[1], pos[2], pos[3], self.editPosSplash = imguiextra.PositionEditor("splash",pos[1], pos[2], pos[3], self.editPosSplash, 300, 135)
 	end
 
 	self.editMenu = imgui.Begin("Edit Menu", true)
@@ -53,7 +57,7 @@ if self.editMenu then
 
 		if imgui.Button("Reset") then
 			self.mainMenu:restoreHidden(extraDefaultSave.disabledMainOptions)
-			extrasavedata.disabledMainOptions = helpers.copy(extraDefaultSave.disabledMainOptions)
+			extrasavedata.disabledMainOptions = {} --lowkey don't remember why this copied the default save
 			self.mainMenu:reorderToIds(extraDefaultSave.mainMenuList)
 		end
 
@@ -69,140 +73,130 @@ if self.editMenu then
 		dpf.saveJson("savedata/extraMod.sav", extrasavedata)
 	end
 	imguiextra.LabeledSeparator("Misc", 1)
-	extrasavedata.splashText = helpers.InputBool("Splash Text", (extrasavedata.splashText or false))
-	extrasavedata.splashTextLeft = helpers.InputBool("Move Splash Text to Left", (extrasavedata.splashTextLeft or false))
-	extrasavedata.apfladdSplashes = helpers.InputBool("Add ES splashes to ApFls splashes", (extrasavedata.apfladdSplashes or false))
+	extrasavedata.splashText = helpers.InputBool("Splash Text", (extrasavedata.splashText))
+	extrasavedata.splashTextLeft = helpers.InputBool("Move Splash Text to Left", (extrasavedata.splashTextLeft))
+	extrasavedata.apfladdSplashes = helpers.InputBool("Add ES splashes to ApFls splashes", (extrasavedata.apfladdSplashes))
 	imgui.TextWrapped("Checking the option above requires restart to change")
+	
 	if imgui.Button("Edit ES Splash Text Offset") then
-		if not extrasavedata.splashTextPos then
-			extrasavedata.splashTextPos = {0,0,-15}
-		end
 		self.editPosESSplashWindow = not self.editPosESSplashWindow
 	end
+	
 	if imgui.Button("Edit ApFls Splash Text Offset") then
-		if not extrasavedata.apflSplashTextPos then
-			extrasavedata.apflSplashTextPos = {0,0,0}
-		end
 		self.editPosSplashWindow = not self.editPosSplashWindow
 	end
+	
+	extrasavedata.oldMenu = helpers.InputBool("Demo Menu Style (No Reordering)", extrasavedata.oldMenu)
+	
+	extrasavedata.moreMMenuCustomization.enabled = helpers.InputBool("More Customization", (extrasavedata.moreMMenuCustomization.enabled))
+	if extrasavedata.moreMMenuCustomization.enabled then
+		imguiextra.LabeledSeparator("Logo", 1)
+		local logos = {"Beatblock", "BeatblockShort", "BtRaNaToWnFnaSoCSWtItbE", "BtRaNaToWnFnaSoCSWtItbEAlternate", "PentasBeattools", "PentasBeattoolsAlternate",} --"BeatABlock"}
+		
+		if imgui.BeginCombo("##LogoCombo", extrasavedata.moreMMenuCustomization.logo) then
+			for i, v in ipairs(logos) do
+				local isSelected = (v == extrasavedata.moreMMenuCustomization.logo)
+				if imgui.Selectable_Bool(v, isSelected) then
+					extrasavedata.moreMMenuCustomization.logo = v
+					if sprites.title[extrasavedata.moreMMenuCustomization.logo] then
+						local i = sprites.title[extrasavedata.moreMMenuCustomization.logo]
+						if extrasavedata.moreMMenuCustomization.coloredLogo and sprites.title[extrasavedata.moreMMenuCustomization.logo .. "_colored"] then
+							i = sprites.title[extrasavedata.moreMMenuCustomization.logo .. "_colored"]
+						end
+						sprites.title.logo = i
+					else
+						extrasavedata.moreMMenuCustomization.logo = "Beatblock"
+					end
+				end
+			end
+			imgui.EndCombo()
+		end
+		extrasavedata.moreMMenuCustomization.coloredLogo = helpers.InputBool("Colored Logo (Shuv still applies)", extrasavedata.moreMMenuCustomization.coloredLogo)
+		
+		if imgui.Button("Edit Offset") then
+			self.editPosLogoWindow = not self.editPosLogoWindow
+		end
 
-	if not extrasavedata.moreMMenuCustomization then
-		extrasavedata.moreMMenuCustomization = helpers.copytable(extraDefaultSave.moreMMenuCustomization)
-	end
-	extrasavedata.oldMenu = helpers.InputBool("Demo Menu Style (No Reordering (ME LAZY))", extrasavedata.oldMenu or false)
-	if extrasavedata.moreMMenuCustomization then
-		extrasavedata.moreMMenuCustomization.enabled = helpers.InputBool("More Customization", (extrasavedata.moreMMenuCustomization.enabled or false))
-		if extrasavedata.moreMMenuCustomization.enabled then
-			imguiextra.LabeledSeparator("Logo", 1)
-			local logos = {"Beatblock", "BeatblockShort", "BtRaNaToWnFnaSoCSWtItbE", "PentasBeattools",} --"BeatABlock"}
-			if not extrasavedata.moreMMenuCustomization.logo then extrasavedata.moreMMenuCustomization.logo = "Beatblock" end
-			if imgui.BeginCombo("##LogoCombo", extrasavedata.moreMMenuCustomization.logo) then
-				for i, v in ipairs(logos) do
-					local isSelected = (v == extrasavedata.moreMMenuCustomization.logo)
-					if imgui.Selectable_Bool(v, isSelected) then
-						extrasavedata.moreMMenuCustomization.logo = v
-						if sprites.title[extrasavedata.moreMMenuCustomization.logo] then
-							local i = sprites.title[extrasavedata.moreMMenuCustomization.logo]
-							if extrasavedata.moreMMenuCustomization.coloredLogo and sprites.title[extrasavedata.moreMMenuCustomization.logo .. "_colored"] then
-								i = sprites.title[extrasavedata.moreMMenuCustomization.logo .. "_colored"]
-							end
-							sprites.title.logo = i
-						else
-							extrasavedata.moreMMenuCustomization.logo = "Beatblock"
+		if not self.oldMenu then
+			imguiextra.LabeledSeparator("RadialList Params", 1)
+			local radialListSettings = extrasavedata.moreMMenuCustomization.radialList
+			radialListSettings.circleWidth = helpers.InputFloat("circleWidth", radialListSettings.circleWidth or 72)
+			radialListSettings.angleOffset = math.rad(helpers.InputFloat("angleOffset", math.deg(radialListSettings.angleOffset) or 0))
+			radialListSettings.activeArc = helpers.InputFloat("activeArc", radialListSettings.activeArc or 1.57)
+			radialListSettings.radius = helpers.InputFloat("radius", radialListSettings.radius or 500)
+			radialListSettings.bounceStrength = helpers.InputFloat("bounceStrength", radialListSettings.bounceStrength or 1)
+			radialListSettings.iconDistance = helpers.InputFloat("iconDistance", radialListSettings.iconDistance or 0.261)
+			radialListSettings.x = helpers.InputFloat("x", radialListSettings.x or 200)
+			radialListSettings.y = helpers.InputFloat("y", radialListSettings.y or 750)
+			radialListSettings.static = helpers.InputBool("static", radialListSettings.static)
+			radialListSettings.hideLabels = helpers.InputBool("hideLabels", radialListSettings.hideLabels)
+			if imgui.Button("Reset Params") then
+				radialListSettings = helpers.copy(extraDefaultSave.moreMMenuCustomization.radialList)
+			end
+		end
+		
+		local backgroundEntities = {
+			"MenuBackground", "NoBG", "oldTitle", "CreditsBG", "cbackground", "TutorialBG", "ShinamonBG", 
+			"MinesweeperBG", "HoleBackground", "Plasma", "SineWaves", "PublicoBG", "LawrenceBG", "DamoclismBG", "SpiralBG"}
+
+		imguiextra.LabeledSeparator("Background Entity", 1)
+		if imgui.BeginCombo("##BackgroundEntity", extrasavedata.moreMMenuCustomization.backgroundEntity) then
+			for i, v in ipairs(backgroundEntities) do
+				local isSelected = (v == extrasavedata.moreMMenuCustomization.backgroundEntity)
+				if imgui.Selectable_Bool(v, isSelected) then
+					extrasavedata.moreMMenuCustomization.backgroundEntity = v
+					local param = em.init(v)
+					self.bgparams = helpers.copytable(param)
+					param.delete = true
+				end
+			end
+			imgui.EndCombo()
+		end
+		if imgui.CollapsingHeader_TreeNodeFlags("Parameters") then
+			if type(self.bgparams or nil) == "table" then
+				imguiextra.drawTable(self.bgparams, {boolean = true, number = true, string = true}, {skipRender = true, skipUpdate = true, delete = true})
+				local function extractValues(tbl, allowedTypes)
+					local result = {}
+					for k, v in pairs(tbl) do
+						local t = type(v)
+						if allowedTypes[t] then
+							result[k] = v
 						end
 					end
+					return result
 				end
-				imgui.EndCombo()
+				extrasavedata.moreMMenuCustomization.bgParams = extractValues(self.bgparams, {boolean = true, number = true, string = true})
+			else
+				self.bgparams = helpers.copy(extrasavedata.moreMMenuCustomization.bgParams)
 			end
-			extrasavedata.moreMMenuCustomization.coloredLogo = helpers.InputBool("Colored Logo (Shuv still applies)", extrasavedata.moreMMenuCustomization.coloredLogo or false)
-			if not extrasavedata.moreMMenuCustomization.logoPosOff then
-				extrasavedata.moreMMenuCustomization.logoPosOff = {0,0}
+			imgui.TextWrapped("If you crash your game after reloading. Go to savedata\\extraMod.sav")
+			if imgui.Button("Clear Params") then
+				self.clearBGParams = true
+				extrasavedata.moreMMenuCustomization.bgParams = {}
 			end
-			
-			if imgui.Button("Edit Offset") then
-				self.editPosLogoWindow = not self.editPosLogoWindow
-			end
+		end
 
-			if not self.oldMenu then
-				imguiextra.LabeledSeparator("RadialList Params", 1)
-				local radialListSettings = extrasavedata.moreMMenuCustomization.radialList
-				radialListSettings.circleWidth = helpers.InputFloat("circleWidth", radialListSettings.circleWidth or 72)
-				radialListSettings.angleOffset = math.rad(helpers.InputFloat("angleOffset", math.deg(radialListSettings.angleOffset) or 0))
-				radialListSettings.activeArc = helpers.InputFloat("activeArc", radialListSettings.activeArc or 1.57)
-				radialListSettings.radius = helpers.InputFloat("radius", radialListSettings.radius or 500)
-				radialListSettings.bounceStrength = helpers.InputFloat("bounceStrength", radialListSettings.bounceStrength or 1)
-				radialListSettings.iconDistance = helpers.InputFloat("iconDistance", radialListSettings.iconDistance or 0.261)
-				radialListSettings.x = helpers.InputFloat("x", radialListSettings.x or 200)
-				radialListSettings.y = helpers.InputFloat("y", radialListSettings.y or 750)
-				radialListSettings.static = helpers.InputBool("static", radialListSettings.static or false)
-				radialListSettings.hideLabels = helpers.InputBool("hideLabels", radialListSettings.hideLabels or false)
-				if imgui.Button("Reset Params") then --helpers.InputFloat(k, v)
-					radialListSettings = helpers.copy(extraDefaultSave.moreMMenuCustomization.radialList)
-				end
-			end
-			
-			local backgroundEntities = {
-				"MenuBackground", "NoBG", "oldTitle", "CreditsBG", "cbackground", "TutorialBG", "ShinamonBG", 
-				"MinesweeperBG", "HoleBackground", "Plasma", "SineWaves", "PublicoBG", "LawrenceBG", "DamoclismBG", "SpiralBG"}
-
-			imguiextra.LabeledSeparator("Background Entity", 1)
-			if imgui.BeginCombo("##BackgroundEntity", extrasavedata.moreMMenuCustomization.backgroundEntity) then
-				for i, v in ipairs(backgroundEntities) do
-					local isSelected = (v == extrasavedata.moreMMenuCustomization.backgroundEntity)
-					if imgui.Selectable_Bool(v, isSelected) then
-						extrasavedata.moreMMenuCustomization.backgroundEntity = v
-						local param = em.init(v)
-						self.bgparams = helpers.copytable(param)
-						param.delete = true
-					end
-				end
-				imgui.EndCombo()
-			end
-			if imgui.CollapsingHeader_TreeNodeFlags("Parameters") then
-				if type(self.bgparams or nil) == "table" then
-					imguiextra.drawTable(self.bgparams, {boolean = true, number = true, string = true}, {skipRender = true, skipUpdate = true, delete = true})
-					local function extractValues(tbl, allowedTypes)
-						local result = {}
-						for k, v in pairs(tbl) do
-							local t = type(v)
-							if allowedTypes[t] then
-								result[k] = v
-							end
-						end
-						return result
-					end
-					extrasavedata.moreMMenuCustomization.bgParams = extractValues(self.bgparams, {boolean = true, number = true, string = true})
-				else
-					self.bgparams = helpers.copy(extrasavedata.moreMMenuCustomization.bgParams)
-				end
-				imgui.TextWrapped("If you crash your game after reloading. Go to savedata\\extraMod.sav")
-				if imgui.Button("Clear Params") then
-					self.clearBGParams = true
-					extrasavedata.moreMMenuCustomization.bgParams = {}
-				end
-			end
-
-			imguiextra.LabeledSeparator("Colors", 1)
+		imguiextra.LabeledSeparator("Colors", 1)
+		for i = 0, 7 do
+			local color = extrasavedata.moreMMenuCustomization.palette[tostring(i)]
+			color.r, color.g, color.b = helpers.imguiColor(tostring(i), color.r, color.g, color.b)
+			shuv.pal[i] = helpers.copy(color)
+		end
+		if imgui.Button("Reset Colors") then
+			shuv.resetPal()
+			shuv.pal[2] = {r= 205, g=205, b=205}
+			shuv.pal[3] = {r= 255, g=52, b=50}
+			shuv.pal[4] = {r= 224, g=227, b=0}
+			shuv.pal[5] = {r= 44, g=255, b=57}
+			shuv.pal[6] = {r= 0, g=222, b=229}
+			shuv.pal[7] = {r= 63, g=38, b=255}
 			for i = 0, 7 do
-				local color = extrasavedata.moreMMenuCustomization.palette[tostring(i)]
-				color.r, color.g, color.b = helpers.imguiColor(tostring(i), color.r, color.g, color.b)
-				shuv.pal[i] = helpers.copy(color)
-			end
-			if imgui.Button("Reset Colors") then
-				shuv.resetPal()
-				shuv.pal[2] = {r= 205, g=205, b=205}
-				shuv.pal[3] = {r= 255, g=52, b=50}
-				shuv.pal[4] = {r= 224, g=227, b=0}
-				shuv.pal[5] = {r= 44, g=255, b=57}
-				shuv.pal[6] = {r= 0, g=222, b=229}
-				shuv.pal[7] = {r= 63, g=38, b=255}
-				for i = 0, 7 do
-					local color = shuv.pal[i]
-					extrasavedata.moreMMenuCustomization.palette[tostring(i)] = helpers.copy(color)
-				end
+				local color = shuv.pal[i]
+				extrasavedata.moreMMenuCustomization.palette[tostring(i)] = helpers.copy(color)
 			end
 		end
 	end
+	
 	imgui.Separator()
 	if imgui.Button("Reload") then
 		if self.clearBGParams then
@@ -240,7 +234,7 @@ payload = '''
 self.oldMenu = extrasavedata.oldMenu
 if self.oldMenu then
 	self.mainMenu = em.init('OptionsList',{allowInput = true})
-elseif extrasavedata.moreMMenuCustomization and extrasavedata.moreMMenuCustomization.enabled then
+elseif extrasavedata.moreMMenuCustomization.enabled then
 	local properties = extrasavedata.moreMMenuCustomization.radialList
 	self.mainMenu = em.init('RadialList',properties)
 	self.mainMenu.allowInput = true
@@ -258,7 +252,7 @@ self.mainMenu.circleWidth = 72 * self.logoZoom
 '''
 position = "at"
 payload = '''
-if extrasavedata.moreMMenuCustomization and extrasavedata.moreMMenuCustomization.enabled then
+if extrasavedata.moreMMenuCustomization.enabled then
 	self.mainMenu.circleWidth = extrasavedata.moreMMenuCustomization.radialList.circleWidth * self.logoZoom
 else
 	self.mainMenu.circleWidth = 72 * self.logoZoom
@@ -266,41 +260,6 @@ end
 '''
 match_indent = true
 
-[[patches]]
-[patches.pattern]
-target = "states/Menu.lua"
-pattern = '''
-if project.event or (not project.release) then
-'''
-position = "at"
-payload = '''
-if not self.oldMenu and (project.event or (not project.release)) then
-'''
-match_indent = true
-
-[[patches]]
-[patches.pattern]
-target = "states/Menu.lua"
-pattern = '''
-self.mainMenu:addOption('exitgame',function()
-'''
-position = "before"
-payload = '''
-if not self.oldMenu then
-'''
-match_indent = true
-
-[[patches]]
-[patches.pattern]
-target = "states/Menu.lua"
-pattern = '''
-end, 17*6, nil, sprites.menu.quit)
-'''
-position = "after"
-payload = '''
-end
-'''
-match_indent = true
 [[patches]]
 [patches.pattern]
 target = "states/Menu.lua"
@@ -353,7 +312,7 @@ position = "at"
 payload = '''
 if self.oldMenu then
 	self.mainMenu:draw(self.x * project.res.cx, 200)
-elseif extrasavedata.moreMMenuCustomization and extrasavedata.moreMMenuCustomization.enabled then
+elseif extrasavedata.moreMMenuCustomization.enabled then
 	local properties = extrasavedata.moreMMenuCustomization.radialList
 	self.mainMenu:draw((self.x * project.res.cx) + (properties.x-300), properties.y, properties.radius) --since i already overwrite this why not?
 else
@@ -378,7 +337,7 @@ end)
 '''
 position = "before"
 payload = '''
-if extrasavedata.moreMMenuCustomization and (not extrasavedata.moreMMenuCustomization.enabled) then
+if not extrasavedata.moreMMenuCustomization.enabled then
 '''
 match_indent = true
 
@@ -422,22 +381,10 @@ flux.to(self.mainMenu, 15, {y = project.res.cy}):ease("inOutSine"):oncomplete(fu
 position = "at"
 payload = '''
 local endy = project.res.cy
-if extrasavedata.moreMMenuCustomization and extrasavedata.moreMMenuCustomization.enabled then
+if extrasavedata.moreMMenuCustomization.enabled then
 	endy = endy - extrasavedata.moreMMenuCustomization.radialList.y - extrasavedata.moreMMenuCustomization.radialList.radius * 2
 end
 flux.to(self.mainMenu, 15, {y = endy}):ease("inOutSine"):oncomplete(function ()
-'''
-match_indent = true
-
-[[patches]]
-[patches.pattern]
-target = "states/Menu.lua"
-pattern = '''
---self.optionsMenu:addOption('optionsLanguage','language',optionsHeight*1)
-'''
-position = "at"
-payload = '''
-self.optionsMenu:addOption('optionsLanguage','language',optionsHeight*0)
 '''
 match_indent = true
 
@@ -450,7 +397,7 @@ self.bg = self.bg or em.init('MenuBackground')
 position = "at"
 payload = '''
 self.bgparams = {}
-if extrasavedata.moreMMenuCustomization and extrasavedata.moreMMenuCustomization.enabled and em.entities[extrasavedata.moreMMenuCustomization.backgroundEntity] then
+if extrasavedata.moreMMenuCustomization.enabled and em.entities[extrasavedata.moreMMenuCustomization.backgroundEntity] then
 	shuv.resetPal()
 	local palette = extrasavedata.moreMMenuCustomization.palette
 	for i = 0, 7 do
@@ -478,7 +425,7 @@ else
 	sprites.title.logo = sprites.title["Beatblock"]
 end
 
-if extrasavedata.splashText or false then
+if extrasavedata.splashText then
 	self.splashtext = loc.get("extrastuffsplashtext_" .. math.random(0,loc.get("extrastuffsplashtext_num")))
 	--self.splashtext = loc.get("extrastuffsplashtext_122")
 end
@@ -493,7 +440,7 @@ love.graphics.draw(sprites.title.logo,project.res.cx,100+ self.logoY,0,self.logo
 '''
 position = "at"
 payload = '''
-if extrasavedata.moreMMenuCustomization and extrasavedata.moreMMenuCustomization.enabled and extrasavedata.moreMMenuCustomization.logoPosOff then
+if extrasavedata.moreMMenuCustomization.enabled and extrasavedata.moreMMenuCustomization.logoPosOff then
 	love.graphics.draw(sprites.title.logo,project.res.cx + extrasavedata.moreMMenuCustomization.logoPosOff[1],100 + self.logoY + extrasavedata.moreMMenuCustomization.logoPosOff[2],0,self.logoZoom, self.logoZoom,sprites.title.logo:getWidth()/2,sprites.title.logo:getHeight()/2)
 else
 	love.graphics.draw(sprites.title.logo,project.res.cx,100+ self.logoY,0,self.logoZoom, self.logoZoom,170,32)
@@ -509,7 +456,7 @@ self.panEase = flux.to(self,60,{x = -1}):ease('outExpo')
 '''
 position = "at"
 payload = '''
-if extrasavedata.moreMMenuCustomization and extrasavedata.moreMMenuCustomization.enabled and extrasavedata.moreMMenuCustomization.logoPosOff then
+if extrasavedata.moreMMenuCustomization.enabled and extrasavedata.moreMMenuCustomization.logoPosOff then
 	local okloc = self.logoY
 	local logopos = 100 + self.logoY + extrasavedata.moreMMenuCustomization.logoPosOff[2]
 
@@ -533,7 +480,7 @@ self.panEase = flux.to(self,60,{x = 1}):ease('outExpo')
 '''
 position = "at"
 payload = '''
-if extrasavedata.moreMMenuCustomization and extrasavedata.moreMMenuCustomization.enabled and extrasavedata.moreMMenuCustomization.logoPosOff then
+if extrasavedata.moreMMenuCustomization.enabled and extrasavedata.moreMMenuCustomization.logoPosOff then
 	self.panEase = flux.to(self,60,{x = 1, logoY = 0}):ease('outExpo')
 else
 	self.panEase = flux.to(self,60,{x = 1}):ease('outExpo')
@@ -566,7 +513,7 @@ if self.splashtext then
 
 	x = project.res.cx + x
 	local y = 80 + sprites.title.logo:getHeight()/2 + self.logoY
-	if extrasavedata.moreMMenuCustomization and extrasavedata.moreMMenuCustomization.enabled and extrasavedata.moreMMenuCustomization.logoPosOff then
+	if extrasavedata.moreMMenuCustomization.enabled and extrasavedata.moreMMenuCustomization.logoPosOff then
 		x = extrasavedata.moreMMenuCustomization.logoPosOff[1] + x
 		y = extrasavedata.moreMMenuCustomization.logoPosOff[2] + y
 	end
@@ -643,7 +590,7 @@ self.bg = self.bg or em.init("MenuBackground")
 position = "at"
 payload = '''
 self.bgparams = {}
-if extrasavedata.moreMMenuCustomization and extrasavedata.moreMMenuCustomization.enabled and em.entities[extrasavedata.moreMMenuCustomization.backgroundEntity] then
+if extrasavedata.moreMMenuCustomization.enabled and em.entities[extrasavedata.moreMMenuCustomization.backgroundEntity] then
 	shuv.resetPal()
 	local palette = extrasavedata.moreMMenuCustomization.palette
 	for i = 0, 7 do
@@ -698,7 +645,7 @@ pattern = '''
 '''
 position = "after"
 payload = '''
-	if extrasavedata.moreMMenuCustomization and extrasavedata.moreMMenuCustomization.enabled then
+	if extrasavedata.moreMMenuCustomization.enabled then
 	local palette = extrasavedata.moreMMenuCustomization.palette
 	local pal = {}
 	for i = 0, 7 do

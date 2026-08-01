@@ -45,18 +45,22 @@ if config then
 				love.mouse.setVisible(false)
 			end
 		end
-		if imgui.Button("Blow A Fuse Transition") then
-			local state = bs.load('BlowAFuseIntro')
-			cs.rateMod = 1
-			state:init()
-		end
-		--_G.seeBAFintro = helpers.InputBool("See Blow A Fuse Intro on next Results", (_G.seeBAFintro or false))
-		config.coydressReplaceFoxy = helpers.InputBool("Coydress Instead of Foxy", (config.coydressReplaceFoxy or false))
-		config.alwaysLoadWorkshop = helpers.InputBool("Always load workshop", (config.alwaysLoadWorkshop or true))
-		config.showTags = helpers.InputBool("Show Generated Tags for Levels", (config.showTags or false))
-		config.playingCrank = helpers.InputBool("Bonky Plays", (config.playingCrank or false))
+		helpers.imguiHelpMarker("Fight the Chimaera. NOT DONE")
 		
-		imgui.Text("Chimaera Fight - not done?\nCoydress Instead of Foxy - does nothing\nAlways Load Workshop - not sure if possible\nShow Gen. Tags - works but I don't know \nhow to implement it yet\nBonky Plays - real time cranking (no mines)")
+		_G.extrastuff_baftransnext = helpers.InputBool("Blow A Fuse Transition", (_G.extrastuff_baftransnext or false))
+		helpers.imguiHelpMarker("BAF Transition next result screen.")
+		
+		config.coydressReplaceFoxy = helpers.InputBool("Coydress Instead of Foxy", (config.coydressReplaceFoxy or false))
+		helpers.imguiHelpMarker("No image.")
+		
+		config.alwaysLoadWorkshop = helpers.InputBool("Always load workshop", (config.alwaysLoadWorkshop or true))
+		helpers.imguiHelpMarker("Probably impossible.")
+		
+		config.showTags = helpers.InputBool("Show Generated Tags for Levels", (config.showTags or false))
+		helpers.imguiHelpMarker("Where do I put this?")
+		
+		config.playingCrank = helpers.InputBool("Bonky Plays", (config.playingCrank or false))
+		helpers.imguiHelpMarker("This bot doesn't understand mines.")
 	end
 	
 	imguiextra.LabeledSeparator("Main Menu", 1)

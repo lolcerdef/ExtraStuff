@@ -140,7 +140,7 @@ love.graphics.draw(self.fish[id].spr,project.res.cx + fishW,y + fishH,0,1,1,25)
 position = "at"
 payload = '''
 local imgW, imgH = self.fish[id].spr:getDimensions()
-if extrasavedata.replayFish ~= false then
+if extrasavedata.replayFish then
 	local selectedFish = self.orderedFish[self.bookMenu.selection + ((self.bookPage - 1) * self.fishPerPage)]
 	if (mouse.rx >= x - imgW/2 and mouse.rx <= x + imgW/2 and
 	   mouse.ry >= y and mouse.ry <= y + imgH) or (selectedFish == id) then
@@ -306,7 +306,7 @@ payload = '''
 for i = 1, self.fishPerPage do
 	self.bookMenu:addOption('',function() end, 100)
 end
-if extrasavedata.replayFish ~= false then
+if extrasavedata.replayFish then
 	self.bookMenu:addNumber('fish_bookPage',self,'bookPage',0,nil,{0,self.bookTotalPages},nil,self.bookTotalPages)
 else
 	self.bookMenu:addNumber('fish_bookPage',self,'bookPage',0,nil,{1,self.bookTotalPages},nil,self.bookTotalPages)
@@ -322,7 +322,7 @@ self.fishPerPage = 4
 '''
 position = "at"
 payload = '''
-self.fishPerPage = extrasavedata.fishPerPage or 4
+self.fishPerPage = extrasavedata.fishPerPage
 '''
 match_indent = true
 

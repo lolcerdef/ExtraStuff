@@ -46,7 +46,7 @@ end
 --if type(cs.level.properties.songChoice) == "number" and false then
 --	event = helpers.copy(validEntries[helpers.clamp(cs.chosenIndex, 1, #validEntries)])
 --else
-if extrasavedata.randomSongs ~= false then
+if extrasavedata.randomSongs then
 	event = helpers.copy(validEntries[math.random(1, #validEntries)])
 end
 '''
@@ -60,7 +60,7 @@ Event.property(event,'decimal', 'offset', 'Offset of the song, in seconds.', {op
 '''
 position = "after"
 payload = '''
-if extrasavedata.randomSongs ~= false then
+if extrasavedata.randomSongs then
 	if not love.filesystem.exists(cLevel.."randomSongs.json") then
 		if imgui.Button("Generate RanSongJSON") then
 			dpf.loadJson(cLevel.."randomSongs.json", {{bpm=event.bpm, timeOffsetSeconds=event.offset or 0, file="template.ogg"}})

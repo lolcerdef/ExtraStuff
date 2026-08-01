@@ -21,12 +21,30 @@ jumpscareAnim = ez.newjson(
 	"Mods/ExtraStuff/assets/jumpscare.json"
 )
 
+fonts.smallnums = love.graphics.newFont("Mods/ExtraStuff/assets/fonts/smallnum/smallnum.ttf", 5)
+fonts.action = love.graphics.newFont("Mods/ExtraStuff/assets/fonts/action/action.ttf", 10)
+fonts.rpgtitle = love.graphics.newFont("Mods/ExtraStuff/assets/fonts/rpgtitle/rpgtitle.ttf", 10)
+
 jumpscareInst = nil
 jumpscareActive = false
 tryjumpscaretimer = 0
 
+local function fillMissingKeys(data, default)
+    for key, value in pairs(default) do
+        if data[key] == nil then
+            data[key] = value
+        elseif type(value) == "table" and type(data[key]) == "table" then
+            fillMissingKeys(data[key], value)
+        end
+    end
+    return data
+end
+
 extraDefaultSave = dpf.loadJson("Mods/ExtraStuff/defaultSav.json")
 extrasavedata = dpf.loadJson("savedata/extraMod.sav", extraDefaultSave)
+
+extrasavedata = fillMissingKeys(extrasavedata, extraDefaultSave)
+dpf.saveJson("savedata/extraMod.sav", extrasavedata)
 log("[EXTRASTUFF]: loaded extrasavedata")
 
 if mods["betterFishing"] then

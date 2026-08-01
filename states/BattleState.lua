@@ -62,10 +62,6 @@ st:setInit(function(self, enemies, turnMessages)
 	self.crankyActions = require "Mods.ExtraStuff.actions.cranky"
 	self.menu = helpers.copytable(self.crankyActions)
 	
-	fonts.smallnums = love.graphics.newFont("Mods/ExtraStuff/assets/fonts/smallnum/smallnum.ttf", 5)
-	fonts.action = love.graphics.newFont("Mods/ExtraStuff/assets/fonts/action/action.ttf", 10)
-	fonts.rpgtitle = love.graphics.newFont("Mods/ExtraStuff/assets/fonts/rpgtitle/rpgtitle.ttf", 10)
-	
 	st.turnMessages = turnMessages or {
 		"..."
 	}

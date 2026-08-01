@@ -2,6 +2,8 @@ local st = Gamestate:new('WorldState')
 local showCollision = false
 
 st:setInit(function(self, roomPath, location)
+	shuv.resetPal()
+	
     self.roomData = dpf.loadJson(roomPath)
     
     self.tileset = cs.tileset or ez.new(sprites.tilesheet, { width = 32, height = 32 })
@@ -242,10 +244,10 @@ st:setBgDraw(function(self)
 
     love.graphics.clear(0,0,0,1)
     love.graphics.setColor(1,1,1,1)
-
+	
+	local layer = self:getLayer("floor")
     for y = 1, self.roomData.roomInfo.height do
         for x = 1, self.roomData.roomInfo.width do
-            local layer = self:getLayer("floor")
             local layerInfo = self.roomData.roomInfo[layer.name]
 
             self.tileset:draw(

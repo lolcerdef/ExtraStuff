@@ -48,7 +48,7 @@ st:setFgDraw(function(self)
 position = "after"
 payload = '''
 --[[
-	self.wow = imgui.Begin("CS Editor", nil, 0)
+	self.cseditor = imgui.Begin("CS Editor", nil, 0)
 		imguiextra.drawTable(cs)
 	imgui.End()]]
 '''
@@ -84,6 +84,21 @@ if self.chimaera then
 	cs = bs.load('WorldState')
 	self.bg.delete = true
 	cs:init('Mods/ExtraStuff/rooms/EraChimaeraRoom.json')
+end
+'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "states/Results.lua"
+pattern = '''
+self.options.allowInput = true
+'''
+position = "after"
+payload = '''
+if _G.extrastuff_baftransnext then
+	_G.extrastuff_baftransnext = false
+	self:goToHiddenLevel('levels/Finished levels/blowafuse/', 'BlowAFuseIntro', 'hard')
 end
 '''
 match_indent = true

@@ -1,4 +1,4 @@
-imguiextra = {}
+local imguiextra = {}
 
 local function swap(t, a, b)
     t[a], t[b] = t[b], t[a]

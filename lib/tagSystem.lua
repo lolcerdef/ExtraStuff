@@ -102,7 +102,7 @@ function tags.getFullCombo(leveldata, levelpath, tagLoader)
 				if ev.tap then
 					hits = hits + 1
 				end
-				if not ev.type == "mine" or ev.type == "mineHold" then
+				if not (ev.type == "mine" or ev.type == "mineHold") then
 					hits = hits + 1
 				elseif effectiveEvents[i-1] then
 					if (effectiveEvents[i-1].type == "mine" or effectiveEvents[i-1].type == "mineHold") and ev.time == effectiveEvents[i-1].time then
