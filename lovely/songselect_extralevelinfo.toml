@@ -14,19 +14,32 @@ payload = '''
 local str = level.bpm
 local length = 0
 local FC = 0
+if mods.beattools and mods.beattools.config.levelSelectMultiplyBpm and self.rateMod and self.rateMod ~= 1 then
+	if type(level.rawMetadata.rawBpm) == "number" then
+		str = loc.get("bpm", { level.rawMetadata.rawBpm * self.rateMod .. "*" })
+	elseif type(level.rawMetadata.rawMinBpm) == "number" then
+		str = loc.get("bpm", { level.rawMetadata.rawMinBpm * self.rateMod .. "-" .. level.rawMetadata.rawMaxBpm * self.rateMod .. "*" })
+	end
+end
 if extrasavedata.chartinfoplus and extrasavedata.chartinfoplus.enabled then
 	if not self.esextralvlinfocache then
 		self.esextralvlinfocache = {}
 	end
 	if self.levelData and self.timingInfo then
 		local filename = self.menuItems[self.selection].filename
-		
+
 		if not self.esextralvlinfocache[filename] then
 			self.esextralvlinfocache[filename] = {}
 			if extrasavedata.chartinfoplus.levelLength then
 				length = tags.calculateLevelLength(self.timingInfo)
 				self.esextralvlinfocache[filename].length = length
+				if mods.beattools and mods.beattools.config.levelSelectMultiplyBpm and self.rateMod and self.rateMod ~= 1 then
+					length = length / self.rateMod
+				end
 				str = str .. " Len: " .. tostring(math.floor(length/60)) .. ":" .. tostring(string.format("%02d", math.floor(length%60)))
+				if mods.beattools and mods.beattools.config.levelSelectMultiplyBpm and self.rateMod and self.rateMod ~= 1 then
+					str = str .. "*"
+				end
 			end
 			if extrasavedata.chartinfoplus.fullCombo then
 				FC = tags.getFullCombo(self.levelData, self.menuItems[self.selection].filename)
@@ -36,7 +49,13 @@ if extrasavedata.chartinfoplus and extrasavedata.chartinfoplus.enabled then
 		else
 			if extrasavedata.chartinfoplus.levelLength then
 				local length = self.esextralvlinfocache[filename].length
+				if mods.beattools and mods.beattools.config.levelSelectMultiplyBpm and self.rateMod and self.rateMod ~= 1 then
+					length = length / self.rateMod
+				end
 				str = str .. " Len: " .. tostring(math.floor(length/60)) .. ":" .. tostring(string.format("%02d", math.floor(length%60)))
+				if mods.beattools and mods.beattools.config.levelSelectMultiplyBpm and self.rateMod and self.rateMod ~= 1 then
+					str = str .. "*"
+				end
 			end
 			if extrasavedata.chartinfoplus.fullCombo then
 				str = str .. " FC: " .. self.esextralvlinfocache[filename].fullcombo
