@@ -28,8 +28,6 @@ local function versionCheck(version, actualversion)
 	return 0
 end
 
-imgui.Separator()
-
 seeUnfinished = seeUnfinished or false
 
 if config then
