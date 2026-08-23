@@ -1,0 +1,15 @@
+{
+	"Publico Cautivo":{"palette":{
+		"5":{"b":57,"g":255,"r":44}
+		,"6":{"b":229,"g":222,"r":0}
+		,"7":{"b":255,"g":38,"r":63}
+		,"1":{"b":0,"g":0,"r":0}
+		,"0":{"b":105,"g":240,"r":210}
+		,"2":{"b":66,"g":98,"r":118}
+		,"3":{"b":187,"g":246,"r":255}
+		,"4":{"b":46,"g":134,"r":116}},
+		"backgroundEntity":"PublicoBG",
+		"bgParams":{"barColor":4},
+		"logo":"BtRaNaToWnFnaSoCSWtItbE","coloredLogo":true
+	}
+}
