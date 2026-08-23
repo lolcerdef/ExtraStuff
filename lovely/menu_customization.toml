@@ -21,6 +21,20 @@ match_indent = true
 [patches.pattern]
 target = "states/Menu.lua"
 pattern = '''
+st:setUpdate(function(self,dt)
+'''
+position = "after"
+payload = '''
+if maininput:down("f9") then
+	self.editMenu = true
+end
+'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "states/Menu.lua"
+pattern = '''
 st:setFgDraw(function(self)
 '''
 position = "after"
