@@ -24,10 +24,8 @@ pattern = '''
 '''
 position = "before"
 payload = '''
-	if not cs.cBeat or cs.noBeat then
-		cs.cBeat = (cs.cBeat or 0) + dt/60
-		cs.noBeat = true
-	end
+cs.cBeat = cs.cBeat or 0
+cs.cBeat = cs.cBeat + dt/60
 '''
 match_indent = true
 
