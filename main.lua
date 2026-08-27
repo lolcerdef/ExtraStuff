@@ -1,8 +1,12 @@
-if not love.filesystem.getInfo("Mods/ExtraStuff") then
+--[[if not love.filesystem.getInfo("Mods/ExtraStuff") then
 	error("Check if your ExtraStuff folder is named 'ExtraStuff' not something like 'ExtraStuff-master'")
-end --im not ficing this shite bruh 
-tags = require("Mods.ExtraStuff.lib.tagSystem")
-imguiextra = require("Mods.ExtraStuff.lib.imguiextra")
+end]] --im not ficing this shite bruh 
+-- i might me ficing this shite bruh
+local path = mods.ExtraStuff.path
+local rpath = string.gsub(mods.ExtraStuff.path, '/', '.')
+
+tags = require(rpath .. ".lib.tagSystem")
+imguiextra = require(rpath .. ".lib.imguiextra")
 
 math.randomseed(os.time())
 
@@ -17,13 +21,13 @@ currentPortraitAd = portraitAdKeys[math.random(1, 4)]
 currentSquareAd = squareAdKeys[math.random(1, 4)]
 
 jumpscareAnim = ez.newjson(
-	"Mods/ExtraStuff/assets/jumpscare.png",
-	"Mods/ExtraStuff/assets/jumpscare.json"
+	path .. "/assets/jumpscare.png",
+	path .. "/assets/jumpscare.json"
 )
 
-fonts.smallnums = love.graphics.newFont("Mods/ExtraStuff/assets/fonts/smallnum/smallnum.ttf", 5)
-fonts.action = love.graphics.newFont("Mods/ExtraStuff/assets/fonts/action/action.ttf", 10)
-fonts.rpgtitle = love.graphics.newFont("Mods/ExtraStuff/assets/fonts/rpgtitle/rpgtitle.ttf", 10)
+fonts.smallnums = love.graphics.newFont(path .. "/assets/fonts/smallnum/smallnum.ttf", 5)
+fonts.action = love.graphics.newFont(path .. "/assets/fonts/action/action.ttf", 10)
+fonts.rpgtitle = love.graphics.newFont(path .. "/assets/fonts/rpgtitle/rpgtitle.ttf", 10)
 
 jumpscareInst = nil
 jumpscareActive = false
@@ -40,12 +44,12 @@ local function fillMissingKeys(data, default)
     return data
 end
 
-extraDefaultSave = dpf.loadJson("Mods/ExtraStuff/defaultSav.json")
+extraDefaultSave = dpf.loadJson(path .. "/defaultSav.json")
 extrasavedata = dpf.loadJson("savedata/extraMod.sav", extraDefaultSave)
 
 extrasavedata = fillMissingKeys(extrasavedata, extraDefaultSave)
 dpf.saveJson("savedata/extraMod.sav", extrasavedata)
-log("[EXTRASTUFF]: loaded extrasavedata")
+log("loaded extrasavedata", 'ExtraStuff')
 
 if mods["betterFishing"] then
 	extrasavedata.replayFish = false
