@@ -460,29 +460,29 @@ end
 '''
 match_indent = true
 
-[[patches]]
-[patches.pattern]
-target = "states/Menu.lua"
-pattern = '''
-self.panEase = flux.to(self,60,{x = 1}):ease('outExpo')
-'''
-position = "at" # uh what?
-payload = '''
-if extrasavedata.moreMMenuCustomization.enabled and extrasavedata.moreMMenuCustomization.logoPosOff then
-	local okloc = self.logoY
-	local logopos = 100 + self.logoY + extrasavedata.moreMMenuCustomization.logoPosOff[2]
-
-	local bottomEdge = logopos + sprites.title.logo:getHeight() / 2
-	print(bottomEdge, logopos)
-	if bottomEdge > 180 then
-		okloc = okloc - extrasavedata.moreMMenuCustomization.logoPosOff[2]
-	end
-	self.panEase = flux.to(self,60,{x = 1, logoY = okloc}):ease('outExpo')
-else
-	self.panEase = flux.to(self,60,{x = 1}):ease('outExpo')
-end
-'''
-match_indent = true
+#[[patches]]
+#[patches.pattern]
+#target = "states/Menu.lua"
+#pattern = '''
+#self.panEase = flux.to(self,60,{x = 1}):ease('outExpo')
+#'''
+#position = "at" # uh what?
+#payload = '''
+#if extrasavedata.moreMMenuCustomization.enabled and extrasavedata.moreMMenuCustomization.logoPosOff then
+#	local okloc = self.logoY
+#	local logopos = 100 + self.logoY + extrasavedata.moreMMenuCustomization.logoPosOff[2]
+#
+#	local bottomEdge = logopos + sprites.title.logo:getHeight() / 2
+#	print(bottomEdge, logopos)
+#	if bottomEdge > 180 then
+#		okloc = okloc - extrasavedata.moreMMenuCustomization.logoPosOff[2]
+#	end
+#	self.panEase = flux.to(self,60,{x = 1, logoY = okloc}):ease('outExpo')
+#else
+#	self.panEase = flux.to(self,60,{x = 1}):ease('outExpo')
+#end
+#'''
+#match_indent = true
 
 [[patches]]
 [patches.pattern]

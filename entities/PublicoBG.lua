@@ -1,6 +1,8 @@
 PublicoBG = class('PublicoBG', Entity)
 
 function PublicoBG:initialize(params)
+	self.layer = -99
+	self.upLayer = -99
 	self.x = 0
 	self.y = 0
 	self.uvdx = 0.05
