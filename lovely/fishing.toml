@@ -234,63 +234,79 @@ position = "at"
 payload = '''
 	love.graphics.setScissor()
 elseif self.bookPage == 0 then
-	color()
-	local wmult = 0
-	if self.fishPerPage <= 8 then
-		wmult = helpers.clamp(pp.w/220, 0, 1)
-	else
-		wmult = helpers.clamp(pp.w/440, 0, 1)
-	end
-	local mx, my = mouse.rx, mouse.ry
-
-	local x = 300
-	local xoff = 0
-	local y = 180
-	local baseScale = 1
-	local hoverScale = 1.08
-	local scale = baseScale
-	local dashScale = baseScale
-	local bw, bh = 200, 200
-
-	if mods["openocean"] and mods["openocean"].enabled then
-		xoff = 110
-
-		if (mx >= 410 - bw/2 * wmult and mx <= 410 + bw/2 * wmult --haha funny number, ok im going to kms
-		and my >= y - bh/2 and my <= y + bh/2) or self.bookMenu.selection == 2 then
-			dashScale = hoverScale
-			if (mouse.pressed == -1 or maininput:pressed("accept")) then
-				self:closeBook()
-				self:startShowCatch("dash_book",false,true)
-			end
-		end
-		if extrasavedata.fishingBookText then
-			love.graphics.draw(sprites.fishing.dashfront,300, y,0,dashScale * wmult, dashScale,108-xoff, 162)
-		end
-	end
-	
-	if (mx >= 300 - xoff - bw/2 * wmult and mx <= 300 - xoff + bw/2 * wmult
-	and my >= y - bh/2 and my <= y + bh/2) or self.bookMenu.selection == 1 then
-		scale = hoverScale
-		if (mouse.pressed == -1 or maininput:pressed("accept")) then
-			self:closeBook()
-			self:startShowCatch("book",false,true)
-		end
-	end
-	if extrasavedata.fishingBookText then
-		love.graphics.draw(sprites.fishing.bookfront,300, y,0,scale * wmult, scale,108+xoff, 162)
-		love.graphics.draw(sprites.fishing.viewbooktag,300, 180,0,wmult, 1,108, 162)
-	end
 	if pp.w > 0 then
-		love.graphics.setScissor(pp.x1-pp.w*0.5,pp.y,pp.w,pp.h)
-		if not extrasavedata.fishingBookText then
-			if mods["openocean"] and mods["openocean"].enabled then
-				love.graphics.draw(sprites.fishing.dash_book,300+xoff, y,0,dashScale, dashScale,90, 90)
+		color() --220, 440
+		local hScale = pp.w / ((self.fishPerPage <= 8) and 220 or 440)
+		
+		local w,h  = project.res.x - 100, project.res.y - 100
+		local mx, my = mouse.x * w, mouse.y * h
+		if not self.exstuffBookData then
+			self.exstuffBookData = {}
+			for _, fb in ipairs(exstuff.fishBookData) do
+				if fb.small == 'book' then
+					table.insert(self.exstuffBookData, fb)
+				elseif fb.mod and mods[fb.mod] and mods[fb.mod].enabled then
+					table.insert(self.exstuffBookData, fb)
+				end
 			end
-			love.graphics.draw(self.spr.book,300-xoff, y,0,scale, scale,90, 90)
 		end
+		local data = self.exstuffBookData
+		local n = #data
+		local forcedSmall = n > 5
+		local useGrid = forcedSmall or not extrasavedata.fishingBookText
+		
+		local cols = useGrid and math.ceil(math.sqrt(n)) or n
+		local rows = math.ceil(n / cols)
+		local cellW, cellH = w / cols, h / rows
+		
+		local function pointInBook(mx, my, cx, cy, bw, bh, s)
+			local halfW, halfH = (bw * s) / 2, (bh * s) / 2
+			return mx >= cx - halfW and mx <= cx + halfW
+				and my >= cy - halfH and my <= cy + halfH
+		end
+		-- if the number of books exceeds 16 then controller support for those past 16 gone
+		-- as if there will be more than like 5 books max
+		for i, b in ipairs(data) do
+			local bookSprKey = extrasavedata.fishingBookText and b.big or b.small
+			if forcedSmall then bookSprKey = b.small end
+			local bookSpr = sprites.fishing[bookSprKey] or self.spr[bookSprKey]
+			local bw, bh = bookSpr:getDimensions()
+			local ox, oy = bw/2, bh/2
+			
+			local col = (i - 1) % cols
+			local row = math.floor((i - 1) / cols)
+			local cx = (col + 0.5) * cellW
+			local cy = (row + 0.5) * cellH
+			
+			local s = math.min(1, cellW / bw, cellH / bh)
+			local mhover = pointInBook(mx, my, cx, cy, bw, bh, s) and my < 215
+			if mhover or self.bookMenu.selection == i then
+				s = s * 1.1
+				if (mouse.pressed == -1 and mhover) or maininput:pressed("accept") then
+					self:closeBook(true)
+					self:startShowCatch(b.vo, false, true)
+				end
+			end
+			
+			love.graphics.draw(bookSpr, cx + 50, cy + 50, 0, s * hScale, s, ox, oy)
+		end
+		
+		if extrasavedata.fishingBookText then
+			love.graphics.draw(sprites.fishing.viewbooktag,300, 180,0,hScale, 1,108, 162)
+		end
+		love.graphics.setScissor(pp.x1-pp.w*0.5,pp.y,pp.w,pp.h)
 		self.bookMenu:draw()
 		love.graphics.setScissor()
+		--print(mx, my)
 	end
+	--[[
+	if imgui.Button('addBook') then
+		table.insert(self.exstuffBookData, {
+			mod = 'ExtraStuff',
+			vo = 'book',
+			small = 'book'
+		})
+	end]]
 end
 '''
 match_indent = true
@@ -359,11 +375,9 @@ if self.viewingBook then
 '''
 position = "after"
 payload = '''
-local num = 1
-if mods["openocean"] and mods["openocean"].enabled then
-	num = 2
-end
-if self.bookPage == 0 then
+if self.bookPage == 0 and self.exstuffBookData then
+	local num = #self.exstuffBookData
+	
 	if (self.bookMenu.selection > num) and (self.bookMenu.selection < self.fishPerPage + 1) then
 		if maininput:pressed("menu_down") then
 			self.bookMenu:setSelection(#self.bookMenu.options.main - 1)
