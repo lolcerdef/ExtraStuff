@@ -239,7 +239,7 @@ elseif self.bookPage == 0 then
 		local hScale = pp.w / ((self.fishPerPage <= 8) and 220 or 440)
 		
 		local w,h  = project.res.x - 100, project.res.y - 100
-		local mx, my = mouse.x * w, mouse.y * h
+		local mx, my = mouse.x * project.res.x - 50, mouse.y * project.res.y - 50
 		local data = exstuff.fishBookData
 		local n = #data
 		local forcedSmall = n > 5
@@ -288,10 +288,9 @@ elseif self.bookPage == 0 then
 		self.bookMenu:draw()
 		love.graphics.setScissor()
 		--print(mx, my)
-	end
-	--[[
+	end--[[
 	if imgui.Button('addBook') then
-		table.insert(self.exstuffBookData, {
+		table.insert(exstuff.fishBookData, {
 			mod = 'ExtraStuff',
 			vo = 'book',
 			small = 'book'
@@ -309,7 +308,9 @@ self.bookMenu:addNumber('fish_bookPage',self,'bookPage',0,nil,{1,self.bookTotalP
 '''
 position = "at"
 payload = '''
-for i = 1, self.fishPerPage do
+local bookCount = (exstuff and exstuff.fishBookData and #exstuff.fishBookData) or 0
+local buttonCount = math.max(self.fishPerPage, bookCount)
+for i = 1, buttonCount do
 	self.bookMenu:addOption('',function() end, 100)
 end
 if extrasavedata.replayFish then
@@ -366,9 +367,10 @@ if self.viewingBook then
 position = "after"
 payload = '''
 if self.bookPage == 0 and exstuff.fishBookData then
-	local num = #exstuff.fishBookData
+	local num = (self.bookPage == 0) and #exstuff.fishBookData or self.fishPerPage
+	local buttonCount = #self.bookMenu.options.main - 2
 	
-	if (self.bookMenu.selection > num) and (self.bookMenu.selection < self.fishPerPage + 1) then
+	if (self.bookMenu.selection > num) and (self.bookMenu.selection <= buttonCount) then
 		if maininput:pressed("menu_down") then
 			self.bookMenu:setSelection(#self.bookMenu.options.main - 1)
 		else
