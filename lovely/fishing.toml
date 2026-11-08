@@ -366,16 +366,14 @@ if self.viewingBook then
 '''
 position = "after"
 payload = '''
-if self.bookPage == 0 and exstuff.fishBookData then
-	local num = (self.bookPage == 0) and #exstuff.fishBookData or self.fishPerPage
-	local buttonCount = #self.bookMenu.options.main - 2
-	
-	if (self.bookMenu.selection > num) and (self.bookMenu.selection <= buttonCount) then
-		if maininput:pressed("menu_down") then
-			self.bookMenu:setSelection(#self.bookMenu.options.main - 1)
-		else
-			self.bookMenu:setSelection(num)
-		end
+local num = (self.bookPage == 0) and #exstuff.fishBookData or self.fishPerPage
+local buttonCount = #self.bookMenu.options.main - 2
+
+if (self.bookMenu.selection > num) and (self.bookMenu.selection <= buttonCount) then
+	if maininput:pressed("menu_down") then
+		self.bookMenu:setSelection(#self.bookMenu.options.main - 1)
+	else
+		self.bookMenu:setSelection(num)
 	end
 end
 '''
