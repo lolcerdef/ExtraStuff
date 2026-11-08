@@ -96,3 +96,41 @@ if not self.rateMod then
 end --i dont know if this works and idc
 '''
 match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "main.lua"
+pattern = '''
+bit = require "bit"
+'''
+position = "before"
+payload = '''
+for exkey, exmod in pairs(mods) do
+	if exmod.enabled then
+		if love.filesystem.getInfo(exmod.path .. '/exstuffBookInfo.json') then
+			local ok, data = pcall(json.decode, love.filesystem.read(exmod.path .. '/exstuffBookInfo.json'))
+			if ok then
+				if data[1] then
+					for _, vv in ipairs(data) do
+						table.insert(exstuff.fishBookData, vv)
+					end
+				else
+					table.insert(exstuff.fishBookData, data)
+				end
+			else
+				print('what???????')
+			end
+		end
+	end
+end
+table.sort(exstuff.fishBookData, function(a,b)
+	return a.vo < b.vo
+end)
+table.insert(exstuff.fishBookData, 1,{
+	small = 'book',
+	big = 'book_front',
+	vo = 'book'
+})
+
+'''
+match_indent = true

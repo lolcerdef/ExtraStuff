@@ -240,17 +240,7 @@ elseif self.bookPage == 0 then
 		
 		local w,h  = project.res.x - 100, project.res.y - 100
 		local mx, my = mouse.x * w, mouse.y * h
-		if not self.exstuffBookData then
-			self.exstuffBookData = {}
-			for _, fb in ipairs(exstuff.fishBookData) do
-				if fb.small == 'book' then
-					table.insert(self.exstuffBookData, fb)
-				elseif fb.mod and mods[fb.mod] and mods[fb.mod].enabled then
-					table.insert(self.exstuffBookData, fb)
-				end
-			end
-		end
-		local data = self.exstuffBookData
+		local data = exstuff.fishBookData
 		local n = #data
 		local forcedSmall = n > 5
 		local useGrid = forcedSmall or not extrasavedata.fishingBookText
@@ -375,8 +365,8 @@ if self.viewingBook then
 '''
 position = "after"
 payload = '''
-if self.bookPage == 0 and self.exstuffBookData then
-	local num = #self.exstuffBookData
+if self.bookPage == 0 and exstuff.fishBookData then
+	local num = #exstuff.fishBookData
 	
 	if (self.bookMenu.selection > num) and (self.bookMenu.selection < self.fishPerPage + 1) then
 		if maininput:pressed("menu_down") then

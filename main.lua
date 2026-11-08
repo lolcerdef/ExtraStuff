@@ -68,34 +68,7 @@ end
 
 exstuff = {}
 exstuff.fishBookData = {}
-exstuff.fishBookData[1] = {
-	small = 'book',
-	big = 'book_front',
-	vo = 'book'
-}
-for _, v in ipairs(love.filesystem.getDirectoryItems('Mods/')) do
-	if love.filesystem.getInfo('Mods/' .. v .. '/exstuffBookInfo.json') then
-		local ok, data = pcall(json.decode, love.filesystem.read('Mods/' .. v .. '/exstuffBookInfo.json'))
-		
-		if ok then
-			if not data.vo then -- maybe more than one book? (why would you hvae more than one book)
-				if data[1] then
-					if data[1].vo then
-						for _, vv in ipairs(data) do
-							table.insert(exstuff.fishBookData, vv)
-						end
-					end
-				else
-					print('what???????', v)
-				end
-			else
-				table.insert(exstuff.fishBookData, data)
-			end
-		else
-			print('what???????', data)
-		end
-	end
-end
+-- moved to main_misc.toml
 
 function exstuff.tryTriggerJumpscare()
 	if jumpscareActive then return end
