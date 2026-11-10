@@ -105,6 +105,11 @@ bit = require "bit"
 '''
 position = "before"
 payload = '''
+table.insert(exstuff.fishBookData, 1,{
+	small = 'book',
+	big = 'book_front',
+	vo = 'book'
+})
 for exkey, exmod in pairs(mods) do
 	if exmod.enabled then
 		if love.filesystem.getInfo(exmod.path .. '/exstuffBookInfo.json') then
@@ -123,14 +128,16 @@ for exkey, exmod in pairs(mods) do
 		end
 	end
 end
-table.sort(exstuff.fishBookData, function(a,b)
-	return a.vo < b.vo
+table.sort(exstuff.fishBookData, function(a, b)
+    if a.vo == 'book' and b.vo ~= 'book' then
+        return true
+    end
+    if b.vo == 'book' and a.vo ~= 'book' then
+        return false
+    end
+    
+    return string.lower(a.vo) < string.lower(b.vo)
 end)
-table.insert(exstuff.fishBookData, 1,{
-	small = 'book',
-	big = 'book_front',
-	vo = 'book'
-})
 
 '''
 match_indent = true

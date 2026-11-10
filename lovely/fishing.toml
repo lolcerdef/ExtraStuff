@@ -288,14 +288,15 @@ elseif self.bookPage == 0 then
 		self.bookMenu:draw()
 		love.graphics.setScissor()
 		--print(mx, my)
-	end--[[
+	end
 	if imgui.Button('addBook') then
 		table.insert(exstuff.fishBookData, {
 			mod = 'ExtraStuff',
 			vo = 'book',
-			small = 'book'
+			small = 'book',
+			big = 'book_front'
 		})
-	end]]
+	end
 end
 '''
 match_indent = true
